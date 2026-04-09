@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { hotelSettingsSchema } from "@/lib/validations/admin";
 import { updateHotelSettings, getHotelSettings } from "@/server/hotel-service";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ async function saveSettings(formData: FormData) {
     country: formData.get("country") as string,
     phone: formData.get("phone") as string,
     email: formData.get("email") as string,
-    website: (formData.get("website") as string) || undefined,
+    website: (formData.get("website") as string) || "",
     checkInTime: formData.get("checkInTime") as string,
     checkOutTime: formData.get("checkOutTime") as string,
     latitude: formData.get("latitude")
@@ -64,17 +65,18 @@ async function saveSettings(formData: FormData) {
     longitude: formData.get("longitude")
       ? Number(formData.get("longitude"))
       : undefined,
-    receptionHours: (formData.get("receptionHours") as string) || undefined,
-    accessDescription:
-      (formData.get("accessDescription") as string) || undefined,
-    parkingInfo: (formData.get("parkingInfo") as string) || undefined,
-    googleMapsUrl: (formData.get("googleMapsUrl") as string) || undefined,
+    receptionHours: (formData.get("receptionHours") as string) || "",
+    accessDescription: (formData.get("accessDescription") as string) || "",
+    parkingInfo: (formData.get("parkingInfo") as string) || "",
+    googleMapsUrl: (formData.get("googleMapsUrl") as string) || "",
   };
 
   const parsed = hotelSettingsSchema.safeParse(raw);
   if (!parsed.success) throw new Error("Données invalides");
 
   await updateHotelSettings(parsed.data);
+  revalidatePath("/admin/settings");
+  revalidatePath("/", "layout");
   redirect("/admin/settings");
 }
 
