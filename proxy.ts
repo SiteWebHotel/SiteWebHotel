@@ -7,6 +7,10 @@ export default auth((req) => {
   if (isAdmin && !isLoginPage && !req.auth) {
     return Response.redirect(new URL("/admin/login", req.nextUrl.origin));
   }
+
+  if (isLoginPage && req.auth) {
+    return Response.redirect(new URL("/admin", req.nextUrl.origin));
+  }
 });
 
 export const config = {

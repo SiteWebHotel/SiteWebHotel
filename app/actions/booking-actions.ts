@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import {
   searchAvailabilitySchema,
   createBookingSchema,
@@ -8,7 +9,9 @@ import {
   findAvailableRoomTypes,
   calculateBookingTotal,
   createBooking,
+  updateBookingStatus,
 } from "@/server/booking-service";
+import { BookingStatus } from "@prisma/client";
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T }
@@ -122,4 +125,13 @@ export async function createBookingAction(
           : "Erreur lors de la création de la réservation",
     };
   }
+}
+
+export async function changeBookingStatusAction(
+  bookingId: string,
+  status: BookingStatus
+) {
+  await updateBookingStatus(bookingId, status);
+  revalidatePath(`/admin/bookings/${bookingId}`);
+  revalidatePath("/admin/bookings");
 }
