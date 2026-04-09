@@ -1,0 +1,221 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  CHECKED_IN
+  CHECKED_OUT
+  NO_SHOW
+}
+
+enum RoomStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+}
+
+enum BlockReason {
+  MAINTENANCE
+  OWNER_USE
+  SEASONAL_CLOSURE
+  OTHER
+}
+
+// ─── Hotel Settings ─────────────────────────────────────
+
+model HotelSettings {
+  id                String   @id @default("singleton")
+  name              String
+  description       String   @db.Text
+  address           String
+  city              String
+  postalCode        String
+  country           String   @default("France")
+  phone             String
+  email             String
+  website           String?
+  latitude          Float?
+  longitude         Float?
+  checkInTime       String   @default("15:00")
+  checkOutTime      String   @default("11:00")
+  receptionHours    String?
+  accessDescription String?  @db.Text
+  parkingInfo       String?  @db.Text
+  googleMapsUrl     String?
+  logoUrl           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// ─── Room Types ─────────────────────────────────────────
+
+model RoomType {
+  id             String          @id @default(cuid())
+  name           String
+  slug           String          @unique
+  description    String          @db.Text
+  shortDescription String?
+  basePrice      Float
+  maxOccupancy   Int
+  bedType        String?
+  surfaceArea    Float?
+  displayOrder   Int             @default(0)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  rooms          Room[]
+  photos         RoomPhoto[]
+  amenities      RoomTypeAmenity[]
+  pricingRules   PricingRule[]
+  bookings       Booking[]
+}
+
+// ─── Physical Rooms ─────────────────────────────────────
+
+model Room {
+  id         String     @id @default(cuid())
+  number     String     @unique
+  floor      Int?
+  status     RoomStatus @default(ACTIVE)
+  notes      String?    @db.Text
+  roomTypeId String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  roomType           RoomType            @relation(fields: [roomTypeId], references: [id])
+  bookings           Booking[]
+  availabilityBlocks AvailabilityBlock[]
+
+  @@index([roomTypeId])
+}
+
+// ─── Amenities ──────────────────────────────────────────
+
+model Amenity {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  icon      String?
+  category  String?
+  createdAt DateTime @default(now())
+
+  roomTypes RoomTypeAmenity[]
+}
+
+model RoomTypeAmenity {
+  roomTypeId String
+  amenityId  String
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+  amenity  Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([roomTypeId, amenityId])
+}
+
+// ─── Photos ─────────────────────────────────────────────
+
+model RoomPhoto {
+  id           String   @id @default(cuid())
+  url          String
+  alt          String?
+  displayOrder Int      @default(0)
+  roomTypeId   String
+  createdAt    DateTime @default(now())
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@index([roomTypeId])
+}
+
+// ─── Bookings ───────────────────────────────────────────
+
+model Booking {
+  id            String        @id @default(cuid())
+  arrivalDate   DateTime      @db.Date
+  departureDate DateTime      @db.Date
+  nights        Int
+  guestCount    Int
+  status        BookingStatus @default(PENDING)
+  totalPrice    Float
+  notes         String?       @db.Text
+  roomTypeId    String
+  roomId        String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+  room     Room?    @relation(fields: [roomId], references: [id])
+  guest    BookingGuest?
+
+  @@index([arrivalDate, departureDate])
+  @@index([roomId])
+  @@index([status])
+}
+
+// ─── Booking Guest ──────────────────────────────────────
+
+model BookingGuest {
+  id        String  @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  message   String? @db.Text
+  bookingId String  @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+}
+
+// ─── Availability Blocks ────────────────────────────────
+
+model AvailabilityBlock {
+  id        String      @id @default(cuid())
+  startDate DateTime    @db.Date
+  endDate   DateTime    @db.Date
+  reason    BlockReason
+  notes     String?     @db.Text
+  roomId    String
+  createdAt DateTime    @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, startDate, endDate])
+}
+
+// ─── Pricing Rules ──────────────────────────────────────
+
+model PricingRule {
+  id          String   @id @default(cuid())
+  name        String
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  pricePerNight Float
+  minNights   Int?
+  roomTypeId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  @@index([roomTypeId, startDate, endDate])
+}
+
+// ─── Admin Users ────────────────────────────────────────
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

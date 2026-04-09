@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+
+---
+description: Enforce PowerShell-compatible commands and avoid bash-specific syntax
+globs: **/*
+---
+
+# Terminal and Command Rules
+
+## Environment
+- The development environment uses Windows with PowerShell, not bash or zsh.
+
+## Command Generation
+- Always generate commands compatible with PowerShell.
+- Never use bash-specific syntax unless explicitly requested.
+
+## Forbidden Patterns
+- Do not use:
+  - `rm -rf`
+  - `cp`
+  - `mv`
+  - `export VAR=...`
+  - `&&` chaining (prefer separate commands or PowerShell syntax)
+  - bash scripts or shebangs like `#!/bin/bash`
+
+## PowerShell Equivalents
+- Use:
+  - `Remove-Item -Recurse -Force` instead of `rm -rf`
+  - `Copy-Item` instead of `cp`
+  - `Move-Item` instead of `mv`
+  - `$env:VAR="value"` instead of `export VAR=value`
+
+## Scripts
+- Prefer cross-platform npm scripts when possible.
+- If shell-specific commands are required, provide PowerShell-compatible versions.
+
+## Clarity
+- When giving commands, ensure they can be copy-pasted directly into PowerShell without modification.
+
+## Workspace's repository
+- Working under C:\Users\yanki\OneDrive\Documents\tmp\SiteWebHotel

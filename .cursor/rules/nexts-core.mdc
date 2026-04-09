@@ -1,0 +1,93 @@
+---
+alwaysApply: true
+---
+
+---
+description: Core rules for a production-grade Next.js hotel booking app using App Router, TypeScript, Tailwind, Prisma, and PostgreSQL
+globs: **/*.ts, **/*.tsx, **/*.js, **/*.jsx
+---
+
+# Next.js Core Rules
+
+## Stack and Architecture
+- Use Next.js App Router only.
+- Use TypeScript in strict mode.
+- Use Tailwind CSS for styling.
+- Use Prisma ORM with PostgreSQL.
+- Organize the codebase with clear separation between UI, server logic, database access, and domain logic.
+
+## Project Structure
+- Use `app/` for routes, layouts, route handlers, loading states, and error boundaries.
+- Use `components/` for reusable UI components.
+- Use `lib/` for utilities, configuration, helpers, validation schemas, and shared server/client helpers.
+- Use `server/` or `services/` for business logic and orchestration.
+- Use `prisma/` for Prisma schema and migrations.
+- Use lowercase directory names with dashes when needed.
+
+## Component Strategy
+- Prefer Server Components by default.
+- Add `'use client'` only when required for browser interactivity, local UI state, hooks, or client-only APIs.
+- Do not convert entire pages to client components if only a small interactive section needs it.
+- Keep client components focused and small.
+
+## Data Access
+- Never put raw Prisma queries directly inside presentation components unless the file is a small server route/page and the query is trivial.
+- Centralize important database access in dedicated server-side modules.
+- Keep business rules out of JSX.
+
+## Forms and Validation
+- Use Zod for input validation.
+- Validate all user inputs on the server even if client validation exists.
+- Return structured validation errors.
+- Show proper pending, success, and error states in forms.
+
+## State Management
+- Minimize client-side global state.
+- Prefer server-derived state when possible.
+- Use local component state for UI interactions only.
+- Use React Context sparingly and only when there is a clear need.
+
+## Performance
+- Prefer Server Components and server data fetching where appropriate.
+- Use dynamic imports for non-critical heavy client components.
+- Optimize images with `next/image` when relevant.
+- Avoid unnecessary `useEffect`, `useMemo`, and `useCallback`.
+- Do not fetch the same data repeatedly across sibling components when it can be centralized.
+
+## Routing and UX
+- Follow App Router conventions.
+- Implement `loading.tsx`, `error.tsx`, and `not-found.tsx` where useful.
+- Use route handlers for server APIs.
+- Keep routes intuitive and business-oriented.
+
+## Styling
+- Build a minimal, clean, mobile-first design.
+- Prefer utility classes and small reusable UI primitives.
+- Avoid flashy animations unless they improve UX.
+- The hotel is not luxury-first; the interface should feel trustworthy, simple, and modern.
+
+## Code Quality
+- Write small, composable functions.
+- Prefer explicit naming over clever abstractions.
+- Avoid duplication, but do not over-abstract prematurely.
+- Refactor when a file becomes hard to read.
+- Do not leave dead code or commented-out obsolete implementations.
+- Add comments only when they clarify intent, constraints, or non-obvious decisions.
+
+## Error Handling
+- Fail safely and explicitly.
+- Never swallow errors silently.
+- Log server-side errors in a structured way.
+- Return user-friendly messages for expected failures.
+
+## Security
+- Never trust client input.
+- Protect admin routes and admin APIs.
+- Do not expose secrets or internal implementation details to the client.
+- Sanitize and validate any rich input.
+- Use environment variables for all secrets and connection strings.
+
+## Output Expectations
+- Generate production-ready code.
+- Prefer maintainability and clarity over cleverness.
+- When implementing a feature, include the necessary types, validation, loading states, and error handling.

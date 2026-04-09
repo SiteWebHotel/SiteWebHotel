@@ -1,0 +1,71 @@
+---
+alwaysApply: true
+---
+
+---
+description: SEO and local search rules for a hotel website built with Next.js App Router
+globs: app/**/*.ts, app/**/*.tsx, components/**/*.ts, components/**/*.tsx, lib/**/*.ts
+---
+
+# SEO and Local Hotel Rules
+
+## SEO Goals
+- Prioritize clear, honest, local SEO for a real hotel website.
+- Optimize for discoverability, trust, and useful search snippets.
+- Avoid keyword stuffing or generic marketing fluff.
+
+## Metadata
+- Use Next.js Metadata API for pages.
+- Provide meaningful `title` and `description` values per important page.
+- Ensure titles are specific to the hotel, room type, location, or purpose.
+- Add canonical URLs where relevant.
+- Add Open Graph metadata for shareable pages when useful.
+
+## Structured Data
+- Use JSON-LD for hotel/business-related structured data where appropriate.
+- Include core business information consistently:
+  - hotel name
+  - address
+  - phone
+  - website
+  - images
+  - amenities when relevant
+- Keep structured data truthful and aligned with visible page content.
+
+## Technical SEO
+- Provide `robots.ts` and `sitemap.ts`.
+- Ensure public pages are indexable unless there is a reason not to index them.
+- Do not index admin pages, private dashboards, or internal workflows.
+- Keep URLs readable and stable.
+
+## Content Strategy
+- Write concise, useful content.
+- Emphasize practical information:
+  - room descriptions
+  - number of guests
+  - amenities
+  - check-in/check-out
+  - contact information
+  - location-related information
+- The tone should be reassuring and factual, not luxury roleplay.
+
+## Performance and UX
+- Favor fast-loading pages and optimized images.
+- Keep mobile UX excellent.
+- Avoid heavy client-side rendering for core public content.
+- Important hotel information should be rendered in a way search engines can understand reliably.
+
+## Local Presence Consistency
+- Keep the hotel name, address, phone number, and website consistent across the site.
+- Assume this website will be used alongside Google Business Profile and booking platforms.
+- Make business identity fields easy to manage from configuration or CMS-like admin settings.
+
+## Public Page Expectations
+- Important public pages typically include:
+  - home page
+  - rooms listing
+  - room detail pages
+  - booking page
+  - contact page
+  - legal pages if required
+- Each important page should have deliberate metadata, not placeholders.

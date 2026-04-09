@@ -1,0 +1,106 @@
+---
+description: 
+alwaysApply: true
+---
+
+---
+description: Business rules for a hotel booking application with real availability management, room blocking, and advanced admin workflows
+globs: app/**/*.ts, app/**/*.tsx, components/**/*.ts, components/**/*.tsx, lib/**/*.ts, server/**/*.ts, services/**/*.ts, prisma/**/*.prisma
+---
+
+# Hotel Booking Domain Rules
+
+## Business Context
+- This project is a real hotel website, not a demo app.
+- Bookings must represent actual room availability and must prevent double-booking.
+- The UI should remain simple for guests and practical for hotel staff.
+
+## Booking Model
+- Support real bookings with arrival date, departure date, guest counts, booking status, customer details, pricing, and assigned room or room type.
+- Distinguish clearly between:
+  - room types
+  - physical rooms
+  - bookings
+  - availability blocks
+  - pricing rules
+- Use date ranges carefully. Arrival is inclusive. Departure is exclusive for overnight stays.
+
+## Availability Logic
+- A room is unavailable if an existing booking or manual block overlaps with the requested stay.
+- Overlap checks must be implemented carefully and consistently.
+- Never rely only on client-side checks for availability.
+- Use transactional server-side logic when creating or confirming bookings.
+- Prevent race conditions that could allow two reservations for the same room.
+
+## Reservation Flow
+- Guest selects arrival date, departure date, and number of guests.
+- System finds eligible room types or rooms based on capacity and availability.
+- System computes total nights and total price.
+- Guest confirms reservation through a server-side validated flow.
+- Reservation creation must be atomic.
+
+## Pricing Logic
+- Support price per night.
+- Support occupancy-aware rules if needed.
+- Always calculate totals server-side.
+- Keep pricing logic in dedicated domain/service functions.
+- Be explicit about taxes, fees, and included amounts.
+
+## Admin Requirements
+- Admin must be able to:
+  - manage rooms
+  - manage room types
+  - manage amenities
+  - manage photos
+  - create manual availability blocks
+  - create, edit, confirm, cancel, and inspect bookings
+  - view booking status and guest details
+  - view occupancy/planning information
+- Admin workflows should prioritize clarity and speed over visual flair.
+
+## Statuses
+- Use explicit booking statuses such as:
+  - pending
+  - confirmed
+  - cancelled
+  - checked_in
+  - checked_out
+  - no_show
+- Status transitions must be controlled and validated.
+
+## Data Design Expectations
+- Prisma models should be normalized and clearly named.
+- Add created/updated timestamps where relevant.
+- Keep audit-relevant fields when useful for admin operations.
+- Use enums for constrained statuses and booking-related constants.
+
+## Guest Experience
+- The public site must feel minimal and reassuring.
+- The booking flow must be short and understandable.
+- Always show:
+  - stay dates
+  - number of nights
+  - number of guests
+  - room or room type
+  - price summary
+  - booking result or failure reason
+
+## Implementation Rules
+- Keep booking logic out of UI components.
+- Put overlap checks, pricing, room assignment rules, and booking transitions in dedicated server-side modules.
+- Prefer clear domain functions such as:
+  - `findAvailableRooms`
+  - `calculateStayNights`
+  - `calculateBookingTotal`
+  - `createBooking`
+  - `cancelBooking`
+  - `blockRoomAvailability`
+
+## Testing Mindset
+- Treat booking overlap logic as critical.
+- Whenever implementing reservation logic, think through edge cases:
+  - same-day arrival/departure boundaries
+  - room blocks
+  - cancellation effects
+  - last available room
+  - concurrent booking attempts
