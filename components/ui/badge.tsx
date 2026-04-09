@@ -18,7 +18,7 @@ const statusLabels: Record<string, string> = {
   CANCELLED: "Annulée",
   CHECKED_IN: "Arrivée",
   CHECKED_OUT: "Départ",
-  NO_SHOW: "No-show",
+  NO_SHOW: "Absent",
   ACTIVE: "Active",
   MAINTENANCE: "Maintenance",
   RETIRED: "Retirée",

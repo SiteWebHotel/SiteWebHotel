@@ -1,10 +1,10 @@
 import { notFound, redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { formatPrice, formatDateFr } from "@/lib/utils";
+import { formatPrice, formatDateFr, cn } from "@/lib/utils";
 import { updateBookingStatus } from "@/server/booking-service";
 import { BookingStatus } from "@prisma/client";
 
@@ -17,8 +17,36 @@ async function changeStatus(formData: FormData) {
   const id = formData.get("bookingId") as string;
   const status = formData.get("status") as BookingStatus;
   await updateBookingStatus(id, status);
+  revalidatePath(`/admin/bookings/${id}`);
   redirect(`/admin/bookings/${id}`);
 }
+
+const allStatuses: BookingStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "CHECKED_IN",
+  "CHECKED_OUT",
+  "CANCELLED",
+  "NO_SHOW",
+];
+
+const statusLabels: Record<BookingStatus, string> = {
+  PENDING: "En attente",
+  CONFIRMED: "Confirmée",
+  CANCELLED: "Annulée",
+  CHECKED_IN: "Arrivée",
+  CHECKED_OUT: "Départ",
+  NO_SHOW: "Absent",
+};
+
+const statusActiveStyles: Record<BookingStatus, string> = {
+  PENDING: "bg-amber-100 text-amber-800 border-amber-300 ring-1 ring-amber-300",
+  CONFIRMED: "bg-green-100 text-green-800 border-green-300 ring-1 ring-green-300",
+  CHECKED_IN: "bg-blue-100 text-blue-800 border-blue-300 ring-1 ring-blue-300",
+  CHECKED_OUT: "bg-stone-200 text-stone-800 border-stone-400 ring-1 ring-stone-400",
+  CANCELLED: "bg-red-100 text-red-800 border-red-300 ring-1 ring-red-300",
+  NO_SHOW: "bg-orange-100 text-orange-800 border-orange-300 ring-1 ring-orange-300",
+};
 
 export default async function BookingDetailPage({ params }: Props) {
   const { id } = await params;
@@ -28,24 +56,6 @@ export default async function BookingDetailPage({ params }: Props) {
   });
 
   if (!booking) notFound();
-
-  const statuses: BookingStatus[] = [
-    "PENDING",
-    "CONFIRMED",
-    "CANCELLED",
-    "CHECKED_IN",
-    "CHECKED_OUT",
-    "NO_SHOW",
-  ];
-
-  const statusLabels: Record<string, string> = {
-    PENDING: "En attente",
-    CONFIRMED: "Confirmée",
-    CANCELLED: "Annulée",
-    CHECKED_IN: "Arrivée",
-    CHECKED_OUT: "Départ",
-    NO_SHOW: "No-show",
-  };
 
   return (
     <div>
@@ -136,26 +146,32 @@ export default async function BookingDetailPage({ params }: Props) {
 
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-stone-800">Changer le statut</h2>
+              <h2 className="font-semibold text-stone-800">Statut</h2>
             </CardHeader>
             <CardContent>
-              <form action={changeStatus} className="flex flex-wrap gap-2">
-                <input type="hidden" name="bookingId" value={booking.id} />
-                {statuses
-                  .filter((s) => s !== booking.status)
-                  .map((s) => (
-                    <Button
-                      key={s}
-                      type="submit"
-                      name="status"
-                      value={s}
-                      variant={s === "CANCELLED" ? "danger" : "outline"}
-                      size="sm"
-                    >
-                      {statusLabels[s]}
-                    </Button>
-                  ))}
-              </form>
+              <div className="flex flex-wrap gap-2">
+                {allStatuses.map((s) => {
+                  const isCurrent = s === booking.status;
+                  return (
+                    <form key={s} action={changeStatus}>
+                      <input type="hidden" name="bookingId" value={booking.id} />
+                      <input type="hidden" name="status" value={s} />
+                      <button
+                        type="submit"
+                        disabled={isCurrent}
+                        className={cn(
+                          "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                          isCurrent
+                            ? statusActiveStyles[s]
+                            : "border-stone-200 bg-white text-stone-600 hover:bg-stone-100"
+                        )}
+                      >
+                        {statusLabels[s]}
+                      </button>
+                    </form>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
         </div>

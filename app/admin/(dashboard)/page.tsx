@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { getDashboardStats, getRecentBookings } from "@/server/admin-service";
 import { formatPrice, formatDateFr } from "@/lib/utils";
 
@@ -36,9 +38,16 @@ export default async function AdminDashboard() {
       <div className="mt-8">
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-stone-800">
-              Dernières réservations
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-stone-800">
+                Dernières réservations
+              </h2>
+              <Link href="/admin/bookings">
+                <Button variant="outline" size="sm">
+                  Voir toutes les réservations
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
