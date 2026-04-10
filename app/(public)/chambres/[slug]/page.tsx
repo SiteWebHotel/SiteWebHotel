@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: rt.name,
     description:
       rt.shortDescription ||
-      `${rt.name} – Hôtel Le Clos Familial à Amboise. ${rt.maxOccupancy} personnes, à partir de ${rt.basePrice}€/nuit.`,
+      `${rt.name} – Hôtel du Commerce à Bellegarde. ${rt.maxOccupancy} personnes, à partir de ${rt.basePrice}€/nuit.`,
   };
 }
 

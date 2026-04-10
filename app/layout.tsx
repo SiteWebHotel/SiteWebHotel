@@ -9,12 +9,15 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Hôtel Le Clos Familial – Amboise, Vallée de la Loire",
-    template: "%s | Hôtel Le Clos Familial",
+    default: "Hôtel du Commerce – Bellegarde",
+    template: "%s | Hôtel du Commerce",
   },
   description:
-    "Hôtel familial au cœur d'Amboise, Vallée de la Loire. Chambres confortables, accueil chaleureux et emplacement idéal pour visiter les châteaux de la Loire.",
-  metadataBase: new URL("https://www.leclosfamilial.fr"),
+    "Hôtel du Commerce à Bellegarde. Chambres confortables, accueil chaleureux et tarifs accessibles.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://hotelducommercebellegarde.vercel.app"
+  ),
 };
 
 export default function RootLayout({

@@ -8,10 +8,12 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-stone-50">
+    <div className="flex min-h-screen bg-stone-50">
       <AdminSidebar />
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-5xl px-6 py-8">{children}</div>
+      <div className="min-w-0 flex-1 overflow-y-auto pt-14 md:pt-0">
+        <div className="mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8">
+          {children}
+        </div>
       </div>
     </div>
   );

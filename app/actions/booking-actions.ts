@@ -11,6 +11,7 @@ import {
   createBooking,
   updateBookingStatus,
 } from "@/server/booking-service";
+import { createCheckoutSession } from "@/server/payment-service";
 import { BookingStatus } from "@prisma/client";
 
 export type ActionResult<T = unknown> =
@@ -102,6 +103,19 @@ export async function createBookingAction(
       roomTypeId: result.data.roomTypeId,
       guest: result.data.guest,
     });
+
+    const stripeEnabled = !!process.env.STRIPE_SECRET_KEY;
+
+    if (stripeEnabled) {
+      const session = await createCheckoutSession(booking.id);
+      return {
+        success: true,
+        data: {
+          id: booking.id,
+          checkoutUrl: session.url,
+        },
+      };
+    }
 
     return {
       success: true,

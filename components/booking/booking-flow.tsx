@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/booking/date-range-picker";
 import { Users, Check, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import {
@@ -30,13 +31,14 @@ interface RoomTypeResult {
 
 interface BookingResult {
   id: string;
-  arrivalDate: string;
-  departureDate: string;
-  nights: number;
-  totalPrice: number;
-  roomTypeName: string;
+  checkoutUrl?: string;
+  arrivalDate?: string;
+  departureDate?: string;
+  nights?: number;
+  totalPrice?: number;
+  roomTypeName?: string;
   roomNumber?: string;
-  guestName: string;
+  guestName?: string;
 }
 
 interface BookingFlowProps {
@@ -134,7 +136,14 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
       return;
     }
 
-    setBookingResult(res.data as BookingResult);
+    const data = res.data as BookingResult;
+
+    if (data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+      return;
+    }
+
+    setBookingResult(data);
     setStep("success");
   }
 
@@ -148,10 +157,10 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
           return (
             <div key={label} className="flex-1">
               <div
-                className={`h-1 rounded-full ${isActive ? "bg-stone-700" : "bg-stone-200"}`}
+                className={`h-1.5 rounded-full ${isActive ? "bg-stone-700" : "bg-stone-200"}`}
               />
               <p
-                className={`mt-1 text-xs ${isActive ? "text-stone-700" : "text-stone-400"}`}
+                className={`mt-1 hidden text-xs sm:block ${isActive ? "text-stone-700" : "text-stone-400"}`}
               >
                 {label}
               </p>
@@ -169,51 +178,46 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
       {/* Étape 1 : Recherche */}
       {step === "search" && (
         <Card>
-          <CardContent className="space-y-4 pt-2">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Input
-                id="arrivalDate"
-                label="Date d'arrivée"
-                type="date"
-                value={searchParams.arrivalDate}
-                onChange={(e) =>
-                  setSearchParams((s) => ({ ...s, arrivalDate: e.target.value }))
-                }
-                error={fieldErrors["arrivalDate"]?.[0]}
-              />
-              <Input
-                id="departureDate"
-                label="Date de départ"
-                type="date"
-                value={searchParams.departureDate}
-                onChange={(e) =>
-                  setSearchParams((s) => ({
-                    ...s,
-                    departureDate: e.target.value,
-                  }))
-                }
-                error={fieldErrors["departureDate"]?.[0]}
-              />
-              <Input
-                id="guestCount"
-                label="Personnes"
-                type="number"
-                min={1}
-                max={10}
-                value={searchParams.guestCount}
-                onChange={(e) =>
-                  setSearchParams((s) => ({
-                    ...s,
-                    guestCount: parseInt(e.target.value) || 1,
-                  }))
-                }
-                error={fieldErrors["guestCount"]?.[0]}
-              />
+          <CardContent className="space-y-5 pt-2">
+            <DateRangePicker
+              arrivalDate={searchParams.arrivalDate}
+              departureDate={searchParams.departureDate}
+              onArrivalChange={(d) =>
+                setSearchParams((s) => ({ ...s, arrivalDate: d }))
+              }
+              onDepartureChange={(d) =>
+                setSearchParams((s) => ({ ...s, departureDate: d }))
+              }
+              errorArrival={fieldErrors["arrivalDate"]?.[0]}
+              errorDeparture={fieldErrors["departureDate"]?.[0]}
+            />
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+              <div className="w-full sm:w-40">
+                <Input
+                  id="guestCount"
+                  label="Personnes"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={searchParams.guestCount}
+                  onChange={(e) =>
+                    setSearchParams((s) => ({
+                      ...s,
+                      guestCount: parseInt(e.target.value) || 1,
+                    }))
+                  }
+                  error={fieldErrors["guestCount"]?.[0]}
+                />
+              </div>
+              <Button
+                onClick={handleSearch}
+                disabled={loading || !searchParams.arrivalDate || !searchParams.departureDate}
+                className="w-full min-h-[44px] sm:w-auto"
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Rechercher les disponibilités
+              </Button>
             </div>
-            <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto">
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Rechercher les disponibilités
-            </Button>
           </CardContent>
         </Card>
       )}
@@ -260,17 +264,18 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
                     {rt.description}
                   </p>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-lg font-semibold text-stone-800">
-                    {formatPrice(rt.pricing.totalPrice)}
-                  </p>
-                  <p className="text-xs text-stone-500">
-                    {rt.pricing.nights} nuit{rt.pricing.nights > 1 ? "s" : ""} ×{" "}
-                    {formatPrice(rt.pricing.pricePerNight)}
-                  </p>
+                <div className="flex items-center justify-between gap-4 sm:block sm:text-right sm:shrink-0">
+                  <div>
+                    <p className="text-lg font-semibold text-stone-800">
+                      {formatPrice(rt.pricing.totalPrice)}
+                    </p>
+                    <p className="text-xs text-stone-500">
+                      {rt.pricing.nights} nuit{rt.pricing.nights > 1 ? "s" : ""} ×{" "}
+                      {formatPrice(rt.pricing.pricePerNight)}
+                    </p>
+                  </div>
                   <Button
-                    size="sm"
-                    className="mt-2"
+                    className="mt-0 min-h-[44px] sm:mt-2"
                     onClick={() => handleSelectType(rt)}
                   >
                     Choisir
@@ -347,11 +352,11 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
                 }
               />
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep("results")}>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
+              <Button variant="outline" onClick={() => setStep("results")} className="min-h-[44px]">
                 Retour
               </Button>
-              <Button onClick={handleGoToConfirm}>Continuer</Button>
+              <Button onClick={handleGoToConfirm} className="min-h-[44px]">Continuer</Button>
             </div>
           </CardContent>
         </Card>
@@ -409,13 +414,17 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
                 <p className="text-stone-600">{guestInfo.phone}</p>
               )}
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep("details")}>
+            <p className="text-xs text-stone-500">
+              En confirmant, vous serez redirigé vers notre plateforme de
+              paiement sécurisé.
+            </p>
+            <div className="flex flex-col-reverse gap-3 sm:flex-row">
+              <Button variant="outline" onClick={() => setStep("details")} className="min-h-[44px]">
                 Modifier
               </Button>
-              <Button onClick={handleConfirmBooking} disabled={loading}>
+              <Button onClick={handleConfirmBooking} disabled={loading} className="min-h-[44px]">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Confirmer la réservation
+                Confirmer et payer
               </Button>
             </div>
           </CardContent>
@@ -445,17 +454,21 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
                 <span className="text-stone-600">Chambre</span>
                 <span>{bookingResult.roomTypeName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-stone-600">Séjour</span>
-                <span>
-                  {bookingResult.nights} nuit
-                  {bookingResult.nights > 1 ? "s" : ""}
-                </span>
-              </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total</span>
-                <span>{formatPrice(bookingResult.totalPrice)}</span>
-              </div>
+              {bookingResult.nights != null && (
+                <div className="flex justify-between">
+                  <span className="text-stone-600">Séjour</span>
+                  <span>
+                    {bookingResult.nights} nuit
+                    {bookingResult.nights > 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
+              {bookingResult.totalPrice != null && (
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span>{formatPrice(bookingResult.totalPrice)}</span>
+                </div>
+              )}
             </div>
             <p className="mt-6 text-sm text-stone-500">
               Vous recevrez un email de confirmation. Pour toute question,

@@ -1,14 +1,13 @@
 export const HOTEL_DEFAULTS = {
-  name: "Hôtel Le Clos Familial",
-  address: "12 Rue des Tilleuls",
-  city: "Amboise",
-  postalCode: "37400",
+  name: "Hôtel du Commerce",
+  address: "",
+  city: "Bellegarde",
+  postalCode: "",
   country: "France",
-  phone: "+33 2 47 00 00 00",
-  email: "contact@leclosfamilial.fr",
-  website: "https://www.leclosfamilial.fr",
-  description:
-    "Un hôtel familial au cœur de la Vallée de la Loire, idéalement situé pour découvrir les châteaux et la douceur de vivre tourangelle.",
+  phone: "",
+  email: "",
+  website: "",
+  description: "",
   checkInTime: "15:00",
   checkOutTime: "11:00",
   receptionHours: null as string | null,
@@ -18,4 +17,5 @@ export const HOTEL_DEFAULTS = {
 } as const;
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.leclosfamilial.fr";
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://hotelducommercebellegarde.vercel.app";

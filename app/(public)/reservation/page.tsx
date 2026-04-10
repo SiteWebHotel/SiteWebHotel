@@ -4,7 +4,7 @@ import { BookingFlow } from "@/components/booking/booking-flow";
 export const metadata: Metadata = {
   title: "Réserver",
   description:
-    "Réservez votre chambre à l'Hôtel Le Clos Familial à Amboise. Vérifiez les disponibilités et réservez en ligne.",
+    "Réservez votre chambre à l'Hôtel du Commerce à Bellegarde. Vérifiez les disponibilités et réservez en ligne.",
 };
 
 interface Props {

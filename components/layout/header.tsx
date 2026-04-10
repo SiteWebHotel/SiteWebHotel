@@ -49,7 +49,7 @@ export function Header({ hotel }: HeaderProps) {
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="rounded-md p-2 text-stone-600 hover:bg-stone-100 md:hidden"
+          className="rounded-md p-2.5 text-stone-600 hover:bg-stone-100 md:hidden"
           aria-label="Menu"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

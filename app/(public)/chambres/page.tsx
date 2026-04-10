@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Nos chambres",
   description:
-    "Découvrez les chambres de l'Hôtel Le Clos Familial à Amboise. Chambres confortables pour couples, familles et voyageurs.",
+    "Découvrez les chambres de l'Hôtel du Commerce à Bellegarde. Chambres confortables pour couples, familles et voyageurs.",
 };
 
 async function getRoomTypes() {
@@ -82,7 +82,7 @@ export default async function RoomsPage() {
                   </div>
                 )}
               </div>
-              <div className="mt-4 flex items-end justify-between">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <p className="text-xl font-semibold text-stone-800">
                   {formatPrice(rt.basePrice)}
                   <span className="text-sm font-normal text-stone-500">
@@ -91,13 +91,13 @@ export default async function RoomsPage() {
                   </span>
                 </p>
                 <div className="flex gap-2">
-                  <Link href={`/chambres/${rt.slug}`}>
-                    <Button variant="outline" size="sm">
+                  <Link href={`/chambres/${rt.slug}`} className="flex-1 sm:flex-none">
+                    <Button variant="outline" className="w-full min-h-[44px] sm:w-auto">
                       Détails
                     </Button>
                   </Link>
-                  <Link href={`/reservation?type=${rt.slug}`}>
-                    <Button size="sm">Réserver</Button>
+                  <Link href={`/reservation?type=${rt.slug}`} className="flex-1 sm:flex-none">
+                    <Button className="w-full min-h-[44px] sm:w-auto">Réserver</Button>
                   </Link>
                 </div>
               </div>
