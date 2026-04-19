@@ -45,9 +45,14 @@ export async function sendBookingPaidConfirmationEmail(
   }
 
   const hotel = await getHotelSettings();
+  const configuredFrom = process.env.RESEND_FROM?.trim();
+  const displayName = (hotel.name || "Réservation")
+    .replace(/[\r\n<>]/g, "")
+    .slice(0, 120);
   const from =
-    process.env.RESEND_FROM?.trim() ||
-    `${hotel.name || "Réservation"} <onboarding@resend.dev>`;
+    configuredFrom ||
+    `${displayName || "Réservation"} <onboarding@resend.dev>`;
+  const usesOnboardingSender = from.includes("@resend.dev");
 
   const guestFirst = booking.guest?.firstName ?? "";
   const arrival = formatDateFr(booking.arrivalDate);
@@ -99,14 +104,19 @@ export async function sendBookingPaidConfirmationEmail(
 </body>
 </html>`.trim();
 
-  const replyTo = hotel.email?.trim() || undefined;
-  const bccHotel = hotel.email?.trim() || undefined;
+  const hotelEmail = hotel.email?.trim() || undefined;
+  // Avec l'expéditeur de test Resend, éviter replyTo/BCC vers un domaine non vérifié
+  // (ex. email hôtel laissé en placeholder dans l'admin → erreur 403 côté Resend).
+  const replyTo =
+    !usesOnboardingSender && hotelEmail ? [hotelEmail] : undefined;
+  const bcc =
+    !usesOnboardingSender && hotelEmail ? [hotelEmail] : undefined;
 
   const { error } = await resend.emails.send({
     from,
     to: guestEmail,
-    replyTo: replyTo ? [replyTo] : undefined,
-    bcc: bccHotel ? [bccHotel] : undefined,
+    replyTo,
+    bcc,
     subject,
     text: textLines.join("\n"),
     html,
@@ -114,5 +124,10 @@ export async function sendBookingPaidConfirmationEmail(
 
   if (error) {
     console.error("[email] Resend error:", error);
+    if (configuredFrom) {
+      console.error(
+        "[email] RESEND_FROM est défini : le domaine de l’adresse d’expédition doit être vérifié dans Resend (Domains)."
+      );
+    }
   }
 }
