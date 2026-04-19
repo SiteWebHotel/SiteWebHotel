@@ -471,9 +471,8 @@ export function BookingFlow({ initialRoomTypeSlug }: BookingFlowProps) {
               )}
             </div>
             <p className="mt-6 text-sm text-stone-500">
-              Conservez cette page comme preuve de réservation. Aucun email
-              automatique n&apos;est envoyé pour l&apos;instant — pour toute
-              question, utilisez la page Contact.
+              Vous recevrez un email de confirmation. Pour toute question,
+              n&apos;hésitez pas à nous contacter.
             </p>
           </CardContent>
         </Card>

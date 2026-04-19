@@ -1,6 +1,7 @@
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/hotel-config";
+import { sendBookingPaidConfirmationEmail } from "@/server/email-service";
 
 export async function createCheckoutSession(bookingId: string) {
   const booking = await prisma.booking.findUnique({
@@ -56,16 +57,35 @@ export async function handleCheckoutCompleted(
     return;
   }
 
-  await prisma.booking.update({
-    where: { id: bookingId },
+  const paymentIntentId =
+    typeof session.payment_intent === "string"
+      ? session.payment_intent
+      : session.payment_intent?.id ?? null;
+
+  const updated = await prisma.booking.updateMany({
+    where: { id: bookingId, status: "PENDING" },
     data: {
       status: "CONFIRMED",
-      stripePaymentIntentId:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : session.payment_intent?.id ?? null,
+      stripePaymentIntentId: paymentIntentId,
     },
   });
+
+  if (updated.count === 0) {
+    return;
+  }
+
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { roomType: true, guest: true },
+  });
+
+  if (booking) {
+    try {
+      await sendBookingPaidConfirmationEmail(booking);
+    } catch (e) {
+      console.error("[payment] Confirmation email failed:", e);
+    }
+  }
 }
 
 export async function handlePaymentFailed(

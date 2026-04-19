@@ -29,8 +29,8 @@ export default async function ConfirmationPage({ searchParams }: Props) {
           Lien invalide
         </h1>
         <p className="mt-2 text-stone-600">
-          Ce lien de confirmation n&apos;est pas valide. Si vous avez payé,
-          contactez l&apos;hôtel en indiquant la date et le montant du paiement.
+          Ce lien de confirmation n&apos;est pas valide. Si vous avez effectué
+          un paiement, vous recevrez un email de confirmation.
         </p>
         <Link href="/" className="mt-6 inline-block">
           <Button>Retour à l&apos;accueil</Button>
@@ -51,9 +51,8 @@ export default async function ConfirmationPage({ searchParams }: Props) {
           Réservation en cours de traitement
         </h1>
         <p className="mt-2 text-stone-600">
-          Votre paiement est peut-être encore en cours de traitement.
-          Rechargez cette page dans quelques instants ou contactez l&apos;hôtel
-          avec votre reçu Stripe.
+          Votre paiement est en cours de validation. Vous recevrez un email de
+          confirmation sous quelques minutes.
         </p>
         <Link href="/" className="mt-6 inline-block">
           <Button>Retour à l&apos;accueil</Button>
@@ -133,10 +132,10 @@ export default async function ConfirmationPage({ searchParams }: Props) {
       </Card>
 
       <p className="mt-6 text-center text-sm text-stone-500">
-        Conservez cette page ou la référence ci-dessus comme justificatif. Un
-        email automatique n&apos;est pas encore envoyé par le site
-        {booking.guest?.email ? ` (votre adresse enregistrée : ${booking.guest.email})` : ""}.
-        Pour toute question, contactez-nous via la page Contact.
+        Un email récapitulatif est envoyé automatiquement
+        {booking.guest?.email ? ` à ${booking.guest.email}` : ""} après le
+        paiement (vérifiez aussi les courriers indésirables). Pour toute
+        question, n&apos;hésitez pas à nous contacter.
       </p>
 
       <div className="mt-6 text-center">
