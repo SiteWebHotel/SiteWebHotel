@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    console.log("[stripe webhook]", event.type, event.id);
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data
